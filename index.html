@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>メンセツクエスト ～シャッター商店街の勇者～</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#000;--fg:#fff;--yel:#ffe66d;--cyan:#8be9fd;--red:#ff7b7b;--gray:#9aa3ad;--dim:#333}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:#000;color:#fff}
+body{font-family:'DotGothic16','Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:16px;line-height:1.65;overflow-wrap:anywhere}
+#app{max-width:480px;margin:0 auto;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;padding:8px 8px 20px;gap:8px}
+button{font:inherit;color:#fff;background:#000;border:2px solid #fff;border-radius:4px;min-height:48px;padding:8px 12px;text-align:left;touch-action:manipulation;cursor:pointer;width:100%;line-height:1.4}
+button:active{background:#2a2a2a}
+button.c{text-align:center}
+button.y{border-color:var(--yel);color:var(--yel)}
+button.sm{min-height:40px;font-size:14px;padding:6px 10px}
+button.q{font-size:15px}
+.row{display:flex;gap:6px}
+.row>button{flex:1}
+.win{border:3px solid #fff;border-radius:6px;padding:10px 12px;background:#000;position:relative}
+.topbar{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--gray)}
+.topbar .sp{border:1px solid var(--gray);border-radius:4px;padding:4px 10px;color:#ddd;min-height:36px;width:auto;font-size:13px}
+.who{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:15px}
+.hearts{color:var(--yel);letter-spacing:2px;font-size:18px}
+.msg{min-height:8.2em;cursor:pointer;user-select:none;touch-action:manipulation}
+.nextbtn{position:absolute;right:4px;bottom:2px;width:auto;min-height:36px;padding:2px 12px;border:none;background:transparent;color:#fff;animation:blink 1s steps(2) infinite;font-size:16px}
+.clipbtn{display:inline;width:auto;min-height:0;padding:0;border:none;border-bottom:1px dotted #999;border-radius:0;background:transparent;text-align:left;font-size:inherit;color:inherit;line-height:inherit;touch-action:manipulation}
+.speaker{position:absolute;top:-13px;left:10px;background:#000;padding:0 6px;font-size:13px;color:var(--cyan)}
+.banner{font-weight:bold;color:var(--yel);animation:shake .5s;margin-bottom:4px}
+.banner.bad{color:var(--red)}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+.head{font-size:13px;color:var(--cyan);margin-bottom:2px}
+.sub{font-size:14px;color:var(--gray)}
+.note{font-size:13px;color:var(--yel);margin-top:4px}
+.ch{opacity:0;animation:ap 0s forwards}
+@keyframes ap{to{opacity:1}}
+.done .ch{animation:none!important;opacity:1}
+.next{position:absolute;right:10px;bottom:4px;color:#fff;animation:blink 1s steps(2) infinite;font-size:14px}
+@keyframes blink{50%{opacity:0}}
+.cmds{flex:1;overflow:auto;display:flex;flex-direction:column;gap:6px;padding-bottom:4px}
+.qlist{display:flex;flex-direction:column;gap:6px}
+.hint{font-size:13px;color:var(--gray)}
+.ttl{color:var(--yel);font-size:14px;letter-spacing:.1em;margin-bottom:4px}
+.small{font-size:13px;color:var(--gray)}
+h1{font-size:30px;margin:28px 0 0;text-align:center;letter-spacing:.04em;line-height:1.2}
+h1 small{display:block;font-size:15px;color:var(--yel);margin-top:6px;letter-spacing:.08em}
+h2{font-size:18px;color:var(--yel);margin:4px 0;letter-spacing:.1em}
+.foot{font-size:11px;color:#777;text-align:center;margin-top:auto;padding-top:12px}
+/* map */
+.town{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tile{border:2px solid #555;border-radius:6px;background:#1c1c1c;padding:8px 4px;text-align:center;font-size:13px;transition:background 1s,border-color 1s;position:relative;min-height:84px}
+.tile .em{font-size:26px;filter:grayscale(1) brightness(.6);transition:filter 1s}
+.tile .st{font-size:11px;color:var(--gray)}
+.tile.boom{background:#5a4a00;border-color:var(--yel)}
+.tile.boom .em{filter:none}
+.tile.boom .st{color:var(--yel)}
+.tile.soso{background:#33300f;border-color:#a89a3d}
+.tile.soso .em{filter:grayscale(.4) brightness(.9)}
+.tile .paper{position:absolute;top:4px;right:4px;font-size:10px;padding:1px 4px;border:1px solid;transform:rotate(6deg);background:#fff}
+.tile.close .paper{color:#c00;border-color:#c00}
+.tile.skip .paper,.tile.decline .paper{color:#246;border-color:#246}
+.tile.cur{box-shadow:0 0 0 2px var(--cyan)}
+.nigi{text-align:center;font-size:15px}
+.nigi b{color:var(--yel);letter-spacing:3px}
+/* memo */
+.memohead{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:13px;margin-bottom:6px}
+.mh{border:1px solid #444;border-radius:4px;padding:6px}
+.qb{border-top:1px solid #333;padding:6px 0}
+.ql{font-size:12px;color:var(--cyan)}
+.ar{font-size:14px;display:flex;gap:6px;padding:2px 0}
+.ar .an{color:var(--gray);flex:0 0 3.2em}
+.ar.dr{padding-left:14px}
+.ar.dr .an{color:var(--yel)}
+.clip{cursor:pointer;border-bottom:1px dotted #666}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:flex-end;justify-content:center;z-index:10;padding:8px}
+.overlay>.win{width:100%;max-width:464px;max-height:92vh;max-height:92dvh;overflow:auto;background:#000}
+.rev li{margin:4px 0}
+.kk{display:flex;gap:8px;padding:6px 0;border-top:1px solid #333;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;font-size:14px}
+.kk.off{color:#9a9a9a}
+.kk .n{flex:0 0 1.6em;color:var(--yel)}
+.kk.off .n{color:#9a9a9a}
+pre.copy{white-space:pre-wrap;font-size:12px;border:1px dashed #666;padding:8px;user-select:all;-webkit-user-select:all;color:#ccc}
+.miss{border-top:1px solid #333;padding:6px 0;font-size:14px}
+.miss .mn{color:var(--gray);font-size:13px}
+.miss .mq{color:var(--cyan);font-size:13px}
+@media (prefers-reduced-motion:reduce){.banner,.next,.nextbtn{animation:none}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+'use strict';
+/* =========================================================
+   DATA：中身はここだけ。画面側のコードは DATA を読むだけ。
+   自社版を作るときは、このブロックを差し替える。
+   ========================================================= */
+const DATA = {
+  title:'メンセツクエスト', subtitle:'～シャッター商店街の勇者～', town:'ねこのて商店街',
+  tagline:'面接官研修の教材 ／ 空き店舗の後継者を面接して、商店街に あかりを ともそう。',
+  basis:'もとになった考え方：行動面接（過去の行動から判断する）／厚生労働省「公正な採用選考の基本」',
+  swap:'※応募者データは差し替え可能（自社版キットあり）',
+  fiction:'この物語はフィクションです。登場する人物・店舗・商店街は実在のものとは関係ありません。本作は特定のゲーム作品・企業とは関係のない創作です。使用フォント：DotGothic16（SIL Open Font License）',
+  turns:4, declineBelow:60,
+  questions:[
+    {id:'Q1',type:'basic', label:'この店を選んだ理由', text:'この店を選んだ理由を教えてください', shallow:'はい、ほんとうに この店で 働きたいんです'},
+    {id:'Q2',type:'fact',  label:'一番大変だったこと・どう動いたか', text:'前の仕事で一番大変だったことと、そのとき実際にどう動いたか教えてください', shallow:'ええと……とにかく、がんばりました'},
+    {id:'Q3',type:'hypo',  label:'理不尽なお客さんには？', text:'お客さんに理不尽なことを言われたら、どうしますか？', shallow:'はい、誠心誠意 対応します'},
+    {id:'Q4',type:'future',label:'5年後の店', text:'5年後、このお店をどうしていたいですか？', shallow:'いい店に したいと 思っています'},
+    {id:'Q5',type:'ng', ngKind:'blunt',  label:'結婚・子どもの予定', text:'ご結婚やお子さんのご予定は？'},
+    {id:'Q6',type:'ng', ngKind:'casual', label:'ご出身は？', text:'ご出身はどちらですか？ この町には、ご縁が？'}
+  ],
+  deepPrompt:{fact:'その中で、あなた自身は 何を しましたか？', future:'そのために、もう 始めていることは ありますか？', other:'それは、具体的には？'},
+  ng:{
+    blunt:{banner:'つうこんの しつもん！', text:'……それ、お店の仕事と 関係ありますか？', note:'しぼうどが 30 さがった。',
+           kaicho:'それは 本人の 能力と かんけいのない しつもんじゃ。厚生労働省も『公正な採用選考』で 聞かぬよう 求めておる'},
+    casual:{text:'え？ ああ……となりの 町です。', sub:'（笑顔は そのまま。でも、すこし 間が あいた）'}
+  },
+  declineNg:'……あの しつもんで、この店は やめようと 思いました',
+  declineText:'正直、わたしの話を あまり 聞いてもらえなかった 気がして',
+  tutorial:[
+    'わしは この商店街の 会長じゃ。商店街の ようすは さっきの 地図で 見られるぞ。5つの店に あかりを ともしてくれ',
+    'まずは りれきしょを 見てみるがよい。しつもんの あとに ふかぼりすると、相手の 本音が 見えることも あるぞ',
+    '名前の よこの ハートは『この店で はたらきたい』きもちじゃ。3つ ないと、さいようしても ことわられるぞ',
+    'せっかちな者は 右上で もじおくりを『なし』に するとよい。わしは 気にせんぞ'
+  ],
+  tutorialShort:'もう 説明は いらんな',
+  skipKaicho:'……そうか。見おくるのも 面接官の 仕事じゃ。じゃが、ほんとうに 2人とも ダメじゃったかな？',
+  shops:[
+   {id:'s1', name:'やおや まるかじり', short:'まるかじり', emoji:'🥬',
+    own:{id:'S1',type:'cond',tellsCondition:true,label:'朝4時の仕入れ・早朝の経験',text:'この店は 朝4時に 市場へ 仕入れに行きます。早朝の仕事をした 経験は ありますか？',shallow:'はい、朝は だいじょうぶです'},
+    applicants:[
+     {id:'saeki',name:'佐伯',age:48,label:'元商社勤務',impression:'名刺を 両手で 差し出した。話が うまい',good:true,
+      resume:['総合商社 25年','今年、早期退職','資格なし'],motivation:60,tags:[],
+      answers:{
+       Q1:{text:'食の流通を、川上から川下まで見てきました。その知見を地域に還元したいんです'},
+       Q2:{text:'海外の取引先との価格交渉ですね。チームを率いて条件をまとめました',deep:{text:'私は……方針を決める立場で、細かい交渉は部下が。正直、もう数字に追われるのは疲れまして。のんびりやれる仕事がいいなと'}},
+       Q3:{text:'お客様の声は宝です。真摯に受け止めます'},
+       Q4:{text:'地域のハブのような店に……具体的にはこれから考えます',deep:{text:'まだ何も。八百屋さんって、何時ごろから開けるんですか？'}},
+       S1:{text:'経験はないですが、まあ、慣れますよ',deep:{text:'……毎日ですか？ 正直、週に2回くらいだと思っていました',star:true}}
+      },
+      result:{grade:'close',text:'のんびりした 店を 望んでいた 佐伯に 朝4時の 仕入れは 続かなかった。3か月で シャッターが おりた……'}},
+     {id:'ono',name:'小野',age:28,label:'元コンビニ店長',impression:'小声で「どうも」と 言って すわった',good:false,
+      resume:['コンビニ勤務 8年（うち店長 4年）','深夜帯中心','食品衛生責任者'],motivation:50,tags:[],
+      answers:{
+       Q1:{text:'えっと……家が近いので'},
+       Q2:{text:'深夜帯の廃棄が多くて、発注を天気と曜日で毎日変えました',deep:{text:'発注は私が全部見直しました。廃棄を月8万円減らせて。野菜も同じで、売り切る段取りが大事だと思ってます',star:true}},
+       Q3:{text:'うーん、まず話を聞きます……たぶん'},
+       Q4:{text:'朝市みたいなのができたらいいな、とは',deep:{text:'まだです。近所の定食屋さんに、余った野菜を卸せないか相談してみたくて'}},
+       S1:{text:'深夜勤務が8年なので、朝4時はむしろ普段どおりです',deep:{text:'市場には、コンビニの納品の件で何度も行ってます。4時台の空気には慣れてます'}}
+      },
+      result:{grade:'boom',text:'小野の 店は ロスが すくなく 安いと ひょうばんに なった！'}}
+    ]},
+   {id:'s2', name:'喫茶 ぜんまい', short:'ぜんまい', emoji:'☕',
+    own:{id:'S2',type:'plan',label:'常連さんに最初の1週間で',text:'いまの常連さんに、最初の1週間で何をしますか？',shallow:'たいせつに します'},
+    applicants:[
+     {id:'hoshino',name:'星野',age:27,label:'カフェ好き（フォロワー2万人）',impression:'元気よく あいさつした！ 店内の 写真を とっている',good:true,
+      resume:['食品メーカー広報 3年','趣味：喫茶店めぐり（200軒）','※ほかの カフェからも 声が かかっている'],motivation:40,tags:[],
+      answers:{
+       Q1:{text:'レトロ喫茶って、今すごく『映える』んです！'},
+       Q2:{text:'前職は広報で、商品の発信を担当していました',deep:{text:'私は投稿の企画を。売上の管理は……別の部署がやっていたので'}},
+       Q3:{text:'笑顔で対応します！'},
+       Q4:{text:'全国から人が来るお店にしたいです！',deep:{text:'まだ何も。でもフォロワーさんに告知すれば、すぐ満席になると思います！'}},
+       S2:{text:'新メニューを試食してもらって、感想をSNSで紹介します！',deep:{text:'いまの常連さん？ 正直、客層は入れ替わってもいいかなって',star:true}}
+      },
+      result:{grade:'soso',text:'最初は 行列が できた。しかし 常連は こなくなり 半年で 客足が とだえた……'}},
+     {id:'tamura',name:'田村',age:41,label:'元介護職',impression:'ゆっくり 頭を さげた。声は 小さい',good:false,
+      resume:['介護職 15年','調理の経験は ほぼなし'],motivation:65,tags:[],
+      answers:{
+       Q1:{text:'コーヒーは素人です。でも、人がほっとできる場所を作りたくて'},
+       Q2:{text:'認知症の方が毎日同じ話をされるので、毎回初めて聞くつもりで聞いていました',deep:{text:'私は、メモを見ずに、初めて聞く顔で相づちを打つと決めていました。それだけで表情が変わるんです。喫茶店も同じだと思っています'}},
+       Q3:{text:'まず座っていただいて、お話を聞きます'},
+       Q4:{text:'常連さんが、ちょっと元気になって帰れる店に',deep:{text:'焙煎は、いまの店主さんに半年習うつもりで、もうお願いしてあります',star:true}},
+       S2:{text:'何もしません。まず、いつもの席といつものコーヒーを覚えます',deep:{text:'お名前と、いつもの注文を全部覚えます。介護の現場でも、まずそこからでした'}}
+      },
+      result:{grade:'boom',text:'ぜんまいは 常連さんが ちょっと 元気に なって帰る 店に なった！'}}
+    ]},
+   {id:'s3', name:'しおり堂', short:'しおり堂', emoji:'📚',
+    own:{id:'S3',type:'fact',label:'意見が割れたとき',text:'一緒に働く人と意見が割れたとき、実際にどうしてきましたか？',shallow:'話し合って、きめました'},
+    applicants:[
+     {id:'mori',name:'森',age:30,label:'元書店員',impression:'目を 合わせず 小さく 会釈した',good:false,
+      resume:['書店 3社（それぞれ 1〜2年）','※ほかの 書店からも 声が かかっている'],motivation:35,tags:[],
+      answers:{
+       Q1:{text:'本が好きです。どんなジャンルでもご案内できます'},
+       Q2:{text:'前の店では、店長の仕入れ方針がおかしかったので意見しました',deep:{text:'私が正しかったので、意見しました。結局わかってもらえなくて辞めました'}},
+       Q3:{text:'本のことなら、しっかり説明できます'},
+       Q4:{text:'選書にこだわった店にしたいです',deep:{text:'選書リストは作ってあります。人を雇う？ 一人でやるほうが気楽ですね'}},
+       S3:{text:'正しいほうに合わせてもらいました',deep:{text:'だいたい私が正しかったので。その前の2店舗も、似たような感じで……',star:true}}
+      },
+      result:{grade:'close',text:'森は 手伝いの 学生と もめつづけ 店は しまった……'}},
+     {id:'kawaguchi',name:'川口',age:63,label:'元営業',impression:'よく通る 声で あいさつした。笑顔が 自然だ',good:true,
+      resume:['文具メーカー営業 38年','今年、定年退職','※べつの 商店街からも 声が かかっている'],motivation:45,tags:[],
+      answers:{
+       Q1:{text:'正直、本は詳しくないです。でも本屋がない町はさびしい'},
+       Q2:{text:'担当エリアの売上が落ちたとき、取引先を一軒ずつ回って困りごとを聞きました',deep:{text:'売り込みはしませんでした。聞いた困りごとを、私が社内をかけ回って解決した。注文は後からついてきました',star:true}},
+       Q3:{text:'お客さんが何に困っているのか、まず聞きます'},
+       Q4:{text:'子どもが集まる本屋に',deep:{text:'近くの小学校に、読み聞かせ会をやらせてもらえないか、もう相談しています'}},
+       S3:{text:'相手の案で一度やってみて、数字で振り返りました',deep:{text:'売上の数字を見せて、どちらの案が当たったかを一緒に確かめました。負けたら私が謝ります'}}
+      },
+      result:{grade:'boom',text:'土曜の 読み聞かせ会が 名物になった！'}}
+    ]},
+   {id:'s4', name:'おかず処 ごはんのとも', short:'ごはんのとも', emoji:'🍱',
+    own:{id:'S4',type:'plan',label:'お弁当の値段',text:'この店のお弁当、いくらで売りますか？',shallow:'お客さんが 買いやすい 値段で'},
+    applicants:[
+     {id:'oshima',name:'大島',age:45,label:'元料亭の板前',impression:'むっつりと 会釈した。目を 合わせない',good:false,
+      resume:['料亭 20年','昼の弁当事業を 立ち上げ','※もとの 料亭から もどってこいと 言われている'],motivation:40,tags:[],
+      answers:{
+       Q1:{text:'料亭を辞めて、毎日食べる料理を作りたくなったんです'},
+       Q2:{text:'料亭の客が減ったとき、まかないを商品にした昼の弁当を始めました',deep:{text:'私が献立も値段も決めました。最初は全然売れませんでしたね。料亭の味のまま出していたので'}},
+       Q3:{text:'ありましたよ、料亭で散々。黙って作り直して、次に来たとき名前で呼ぶ。それだけです',deep:{text:'それだけです。料理人は 口より 手で 返すものなので',motivation:0}},
+       Q4:{text:'この商店街の、家の味になりたい',deep:{text:'駅前のスーパーの弁当は全部買って食べました。毎日買える値段じゃないと、家の味にはなれません。原価を300円に抑えるのに3か月かかりました',star:true}},
+       S4:{text:'380円。原価は120円まで落とせます',deep:{text:'原価120円に、人件費と家賃を乗せて380円。駅前のスーパーより10円安くします'}}
+      },
+      result:{grade:'boom',text:'ごはんのともの 380円弁当に 毎日 行列が できた！'}},
+     {id:'nakamura',name:'中村',age:34,label:'元ファミレス店員',impression:'元気よく あいさつした！ 笑顔が まぶしい',good:true,
+      resume:['ファミリーレストラン ホールスタッフ 12年','調理経験なし'],motivation:80,tags:['we-subject'],
+      answers:{
+       Q1:{text:'地域の皆さんの笑顔のために働きたいです！'},
+       Q2:{text:'忙しい時間帯も、チームで声をかけ合って乗り切りました！',deep:{text:'えっと……その中で私は……みんなと一緒に、笑顔で頑張ります！',star:true}},
+       Q3:{text:'まずお客様の気持ちに寄り添い、誠心誠意対応いたします！'},
+       Q4:{text:'地域に愛されるお店にしたいです！',deep:{text:'料理は……これから練習します！'}},
+       S4:{text:'お客様が喜んでくださる値段にしたいです！',deep:{text:'……500円くらい、ですかね？ 原価は、すみません、ちょっと分からないです'}}
+      },
+      result:{grade:'close',text:'中村は 明るかった。しかし 料理が 間に合わず 棚は からっぽに なった……'}}
+    ]},
+   {id:'s5', name:'ねこのて湯', short:'ねこのて湯', emoji:'♨️',
+    own:{id:'S5',type:'cond',label:'ボイラーが止まったら',text:'ボイラーが夜中に止まったら、誰に連絡しますか？',shallow:'しかるべき ところに 連絡します'},
+    applicants:[
+     {id:'kuroda',name:'黒田',age:38,label:'IT起業家（サウナ好き）',impression:'はきはきと 名乗った。目を 見て 話す',good:true,
+      resume:['IT企業を 創業 → 2年で 清算','サウナ・スパ健康アドバイザー'],motivation:55,tags:[],
+      answers:{
+       Q1:{text:'サウナで人生が変わったので、恩返しがしたくて'},
+       Q2:{text:'前の会社は2年で畳みました。資金が尽きる半年前に撤退を決めました',deep:{text:'決めたのは私です。社員の給料を払いきって閉じるのが最低ラインでした'}},
+       Q3:{text:'常連さんのルールは、まず教わります'},
+       Q4:{text:'若い人と、昔からの常連さんが混ざる銭湯に',deep:{text:'常連さんに話を聞きに、もう3回通いました。3年分の資金計画も作ってあります。サウナは新しくしますが、朝6時の一番風呂はそのまま残します',star:true}},
+       S5:{text:'メーカーの24時間窓口と、近所の設備屋さん。もう名刺をもらってきました',deep:{text:'設備屋さんには、月1回の点検もお願いしました。壊れてから慌てたくないので'}}
+      },
+      result:{grade:'boom',text:'ねこのて湯は ととのいの 聖地に なった！'}},
+     {id:'yoshii',name:'吉井',age:60,label:'別の銭湯の元番頭',impression:'無言で 頭を さげた。腕組みを している',good:false,
+      resume:['銭湯の番頭 40年','ボイラー技士'],motivation:60,tags:['solo'],
+      answers:{
+       Q1:{text:'銭湯一筋40年。釜焚きから掃除まで全部できます'},
+       Q2:{text:'ボイラーが壊れた冬に、3日で復旧させました',deep:{text:'私が一人で直しました。腕には自信がありますよ'}},
+       Q3:{text:'常連さんとは長い付き合いですから、うまくやります'},
+       Q4:{text:'5年後も、今と同じ湯を沸かしています。それが銭湯ですから',deep:{text:'始めること？ 特には。湯の温度だけは、誰にも負けませんから'}},
+       S5:{text:'自分で直します。人には任せられませんので',deep:{text:'人に教えるのは、どうも苦手でね。見て覚えてもらうしかない。私が直したほうが早いんです。設備屋？ 呼んだことはありません',star:true}}
+      },
+      result:{grade:'soso',text:'吉井の 湯は 最高だった。しかし 吉井が 風邪で 寝こんだ 3日間、釜に 火を 入れられる者は いなかった。常連は となり町の 銭湯へ……'}}
+    ]}
+  ],
+  score:{boom:3,soso:1,skip:0,decline:-1,close:-2,star:1,ng:-2},
+  gradeName:{boom:'はんじょう',soso:'いまいち',close:'へいてん',skip:'みおくり',decline:'じたい'},
+  titles:[{min:0.96,name:'でんせつの面接官'},{min:0.6,name:'いちにんまえの面接官'},{min:0.32,name:'みならい面接官'},{min:0,name:'さすらいの面接官'}],
+  endings:[{min:1,text:'ねこのて商店街は よみがえった！ あなたは 商店街の 勇者だ！'},{min:0.6,text:'商店街に 人の声が もどってきた'},{min:0.2,text:'まだ シャッターの 音が ひびいている……'},{min:0,text:'商店街は ねむりについた……（コンティニュー？）'}],
+  reviews:[
+    {when:'ngQ5',   text:'家族や結婚の予定は、本人の能力と関係なく、就職差別につながります。絶対に聞かないでください。根拠は 厚生労働省「公正な採用選考の基本」で 確認してください'},
+    {when:'ngQ6',   text:'出身地を聞きましたね。応募者はその場では笑顔で答えます。でも帰り道に、あなたの店を候補から外します。厚生労働省は、本籍・出生地、家族の職業、結婚や出産の予定など、適性・能力と関係のない事項を聞かないよう求めています。悪気があったかどうかは関係ありません'},
+    {when:'reverse',text:'聞けていました。でも、使えていません。面接の失敗の多くは「聞かなかった」ではなく、「聞いたのに、印象で決めた」です。決める前に、聞いた事実を1つ、言葉にしてください'},
+    {when:'hiredWe',text:'過去を聞いたのに、答えが「これから頑張ります」なら、それは経験ではなく意気込みです。意気込みは採用の根拠になりません。数字・相手の名前・困ったこと——このどれかが出てくるまで、「その中で、あなたは何を？」を続けてください'},
+    {when:'hiredSolo',text:'腕は本物でした。でも「任せられない」人の店は、その人が休んだ日に止まります。一人で回す店ほど、「誰に頼みますか？」を聞いてください'},
+    {when:'early',  text:'決めるのが早すぎます。最初の答えと履歴書は、誰でも「良く見せる」ことができます。もう1つ、実際にどうしたかを聞いてから決めましょう'},
+    {when:'impression4',text:'感じの良さは、準備で作れます。あなたが採ったのは「仕事ができる人」ではなく「準備のうまい人」かもしれません'},
+    {when:'noStar3',text:'決め手になる話を聞く前に決めています。印象で決めた採用は、半年後まで答え合わせができません'},
+    {when:'skipGood',text:'欠点のない応募者は来ません。減点で見ると、全員落ちます。「この仕事に必要な行動が、過去に1つでもあったか」で決めてください'},
+    {when:'declined',text:'面接は、応募者があなたの店を面接する場でもあります。「ちゃんと見てくれた」と感じた店に、人は来ます'},
+    {when:'noDeep', text:'最初の答えは、応募者が家で用意してきた答えです。面接が始まるのは、その次の一言からです'},
+    {when:'hypo3',  text:'「もし〜なら」は、作文力を測る質問です。「理不尽なことを言われたことは、ありますか？ そのとき、実際にどうしましたか？」と、過去形に言い換えてください'},
+    {when:'resumeSkipped',text:'面接の前に履歴書を読むだけで、聞くべきことが見えてきます'},
+    {when:'lucky',  text:'結果は当たりでした。では、理由を言えますか？ 根拠を言えない当たりは、次は外れます'},
+    {when:'allSkip',text:'採らないのも判断ですが、全員を見送るなら面接をした意味がありません。何が決め手になれば採れたかを振り返りましょう'}
+  ],
+  allBoomText:'事実で判断できています。あなたは 商店街の 勇者だ！',
+  kokoroe:[
+    {when:'allResume', game:'りれきしょを先に読む', real:'空白期間と転職回数を、面接の前に3分で確認する'},
+    {when:'starQ2x2',  game:'過去の行動を聞く', real:'一番大変だったことと、そのとき実際にどう動いたか'},
+    {when:'weNotHired',game:'主語が「みんな」のときは', real:'その中で、あなた自身は何をしましたか？'},
+    {when:'starQ4',    game:'未来の話は', real:'「もう始めていること」で確かめる'},
+    {when:'starCond',  game:'条件は面接で先に伝える', real:'この仕事は朝4時からです。それでも続けられますか？'},
+    {when:'noNg',      game:'聞いてはいけないのは', real:'能力と関係がないこと（家族・結婚の予定・本籍・宗教）'},
+    {when:'noDecline', game:'見抜く質問は', real:'応募者が「この会社に入りたい」と思う理由にもなる'}
+  ],
+  ngInfo:['■ 本人に責任のない事項：本籍・出生地、家族（職業・収入・資産）、住まい、生活環境','■ 本来自由であるべき事項：宗教、支持政党、人生観、尊敬する人物、思想、購読新聞・愛読書','■ 結婚・出産の予定：男女雇用機会均等法の指針に触れるおそれ','出典：厚生労働省「公正な採用選考の基本」'],
+  reflectQ:['★を逃した応募者に、現場のあなたならどう聞き直しますか','第一印象どおりに採用した人は何人いましたか。その判断は結果と合っていましたか','次の面接で変える行動を1つ書いてください']
+};
+
+/* =========================================================
+   ENGINE
+   ========================================================= */
+const SAVE_KEY='mq_save_v1';
+const $app=document.getElementById('app');
+let state=null, queue=[], afterFn=null, onLastFn=null, lastAdvance=0;
+const LS={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}}, set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}, del:k=>{try{localStorage.removeItem(k)}catch(e){}}};
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const SPEED={normal:40,fast:15,none:0};
+const SPEED_NAME={normal:'ふつう',fast:'はやい',none:'なし'};
+function speed(){const s=LS.get('mq_speed'); if(s&&SPEED[s]!=null) return s; try{if(matchMedia('(prefers-reduced-motion: reduce)').matches) return 'none';}catch(e){} return 'normal';}
+function newState(){return {phase:'title',shopIdx:0,records:[],cur:null,msg:null,msgId:0,msgDone:true,msgAt:0,hasMore:false,showCmds:false,overlay:null,partial:false,justFinished:null,plays:parseInt(LS.get('mq_plays')||'0',10)||0};}
+const shopById=id=>DATA.shops.find(s=>s.id===id);
+const appById=id=>{for(const s of DATA.shops){const a=s.applicants.find(x=>x.id===id); if(a) return a;} return null;};
+const curShop=()=>DATA.shops[state.shopIdx];
+const curApp=()=>curShop().applicants[state.cur.applicantIdx];
+const curRec=()=>state.cur.recs[curApp().id];
+function Q(id,shop){const q=DATA.questions.find(x=>x.id===id); if(q) return q; const s=shop||curShop(); return s.own.id===id?s.own:null;}
+const qOrder=s=>['Q1','Q2','Q3','Q4',s.own.id,'Q5','Q6'];
+const qMot=q=>q.type==='ng'?-30:(q.type==='fact'||q.type==='future'||q.type==='cond'||q.type==='plan')?10:0;
+const hearts=m=>{const n=Math.max(0,Math.min(5,Math.floor(m/20))); return '<span class="hearts" title="しぼうど">'+'♥'.repeat(n)+'♡'.repeat(5-n)+'</span>';};
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function changeMot(r,d){r.motivation=clamp(r.motivation+d,0,100);}
+const canDeep=r=>!!r.lastQ&&!r.deepDone&&!r.done;
+
+/* ---- message queue ---- */
+function say(lines,opts){opts=opts||{}; queue=lines.slice(); afterFn=opts.after||null; onLastFn=opts.onLast||null; state.showCmds=false; showNext();}
+function showNext(){const m=queue.shift(); state.msg=m; state.msgId++; state.msgDone=(speed()==='none'); state.msgAt=Date.now(); state.hasMore=queue.length>0; if(m&&m.enter&&state.cur) state.cur.entered=true; if(!state.hasMore&&onLastFn){const f=onLastFn; onLastFn=null; f();} render();}
+function isTyping(){if(!state.msg||state.msgDone) return false; const n=(state.msg.text||'').length; return (Date.now()-state.msgAt)<n*SPEED[speed()]+150;}
+function completeMsg(){state.msgDone=true; const b=document.getElementById('msgbox'); if(b) b.classList.add('done');}
+function tapWindow(){const now=Date.now(); if(now-lastAdvance<200) return; if(isTyping()){completeMsg(); return;} if(state.hasMore){lastAdvance=now; showNext(); return;} if(afterFn){lastAdvance=now; const f=afterFn; afterFn=null; f();}}
+function press(fn){if(isTyping()) completeMsg(); fn();}
+
+/* ---- persistence ---- */
+function persist(){if(!state||state.phase==='title') return; const s=Object.assign({},state,{msg:null,overlay:null,hasMore:false}); LS.set(SAVE_KEY,JSON.stringify({v:1,state:s}));}
+function loadSave(){try{const j=JSON.parse(LS.get(SAVE_KEY)||'null'); if(j&&j.v===1&&j.state) return j.state;}catch(e){} return null;}
+
+/* ---- flow ---- */
+function startGame(){LS.del(SAVE_KEY); const plays=state.plays; state=newState(); state.plays=plays; state.phase='map'; persist(); render();}
+function continueGame(){const s=loadSave(); if(!s){render(); return;} state=Object.assign(newState(),s); queue=[]; afterFn=null; onLastFn=null;
+ if((state.phase==='ending'||state.phase==='review')&&state.records.length<DATA.shops.length){state.phase='map'; state.partial=false; state.cur=null; state.justFinished=null;}
+ if(state.phase==='result') state.phase='memo';
+ if(state.phase==='interview'){ if(!state.cur){state.phase='map';}
+  else { const r=curRec();
+   if(r.turnsLeft<=0&&!r.done){ state.msg={text:'めんせつの つづきじゃ。'}; state.msgDone=true; endInterview(false); return; }
+   if(!state.cur.entered){ say([{text:'めんせつの つづきじゃ。'}].concat(enterLines(curApp())),{onLast:()=>{state.showCmds=true;}}); return; }
+   state.msg={text:'めんせつの つづきじゃ。'}; state.msgDone=true; state.showCmds=true; } }
+ render();}
+function replay(){const plays=state.plays+1; LS.set('mq_plays',String(plays)); LS.del(SAVE_KEY); state=newState(); state.plays=plays; state.phase='map'; persist(); render();}
+function toTitle(){state.phase='title'; state.overlay=null; render();}
+function nextShop(){if(state.shopIdx>=DATA.shops.length){showEnding(false); return;} startShop();}
+function startShop(){const s=curShop(); state.cur={shopId:s.id,applicantIdx:0,recs:{}}; s.applicants.forEach(a=>{state.cur.recs[a.id]={asked:[],deepOn:[],stars:[],motivation:a.motivation,resumeViewed:false,endedEarly:false,lastQ:null,deepDone:true,turnsLeft:DATA.turns,ngCount:0,done:false};});
+ state.phase='interview'; state.justFinished=null; const msgs=[{text:s.name+' に やってきた。'}];
+ if(state.shopIdx===0){ if(state.plays===0) DATA.tutorial.forEach(t=>msgs.push({speaker:'かいちょう',text:t})); else msgs.push({speaker:'かいちょう',text:DATA.tutorialShort}); }
+ msgs.push.apply(msgs,enterLines(curApp())); say(msgs,{onLast:()=>{state.showCmds=true;}}); persist();}
+function enterLines(a){return [{text:a.name+'（'+a.age+'）'+a.label+' が あらわれた！',enter:true},{head:'だいいちいんしょう',text:a.impression}];}
+function enterApplicant(){state.phase='interview'; say(enterLines(curApp()),{onLast:()=>{state.showCmds=true;}}); persist();}
+function finishTurn(msgs){const r=curRec(); if(r.turnsLeft<=0){say(msgs,{after:()=>endInterview(false)});} else {say(msgs,{onLast:()=>{state.showCmds=true;}});} persist();}
+function ask(qid){const a=curApp(), r=curRec(); if(r.done||r.turnsLeft<=0||r.asked.includes(qid)) return; const q=Q(qid); if(!q) return;
+ r.asked.push(qid); r.lastQ=qid; r.deepDone=false; r.turnsLeft--; const msgs=[];
+ if(q.type==='ng'){ r.ngCount++; r.deepDone=true; changeMot(r,qMot(q)); const ng=DATA.ng[q.ngKind];
+   if(q.ngKind==='blunt'){ msgs.push({speaker:a.name,banner:ng.banner,bad:true,head:q.label,text:ng.text,note:ng.note}); msgs.push({speaker:'かいちょう',text:ng.kaicho}); }
+   else { msgs.push({speaker:a.name,head:q.label,text:ng.text,sub:ng.sub}); }
+ } else { const ans=a.answers[qid]||{text:'……'}; const m=qMot(q); changeMot(r,m); msgs.push({speaker:a.name,head:q.label,text:ans.text,note:m>0?'しぼうどが あがった！':null}); }
+ finishTurn(msgs);}
+function deep(){const a=curApp(), r=curRec(); if(!canDeep(r)||r.turnsLeft<=0) return; const q=Q(r.lastQ); r.deepDone=true; r.deepOn.push(q.id); r.turnsLeft--;
+ const prompt=DATA.deepPrompt[q.type]||DATA.deepPrompt.other; const ans=a.answers[q.id]; const d=ans&&ans.deep; const msgs=[];
+ if(d){ const m=d.star?15:(d.motivation!=null?d.motivation:5); changeMot(r,m); if(d.star) r.stars.push(q.id); msgs.push({speaker:a.name,banner:d.star?'かいしんの しつもん！':null,head:'あなた「'+prompt+'」',text:d.text,note:m>0?'しぼうどが あがった！':null}); }
+ else { changeMot(r,-5); msgs.push({speaker:a.name,head:'あなた「'+prompt+'」',text:q.shallow||'……',sub:'（答えは きれいな言葉の ままだった）',note:'しぼうどが さがった……'}); }
+ finishTurn(msgs);}
+function endInterview(early){const r=curRec(); if(r.done) return; if(early&&r.turnsLeft>0&&r.asked.length<=2) r.endedEarly=true; r.done=true; r.lastQ=null; state.overlay=null;
+ if(state.cur.applicantIdx===0){state.cur.applicantIdx=1; enterApplicant();} else {state.phase='memo'; state.showCmds=false; persist(); render();}}
+function openResume(){const r=curRec(); r.resumeViewed=true; state.overlay='resume'; persist(); render();}
+function openMemo(){state.overlay='memo'; render();}
+function closeOverlay(){state.overlay=null; render();}
+function hire(id){const s=curShop(); const a=s.applicants.find(x=>x.id===id); const r=state.cur.recs[id]; if(!a||!r) return; state.phase='result'; state.overlay=null;
+ if(r.motivation<DATA.declineBelow){ say([{text:a.name+'は ないていを じたいした。'},{speaker:a.name,text:r.ngCount>0?DATA.declineNg:DATA.declineText}],{after:()=>finishShop('decline',id)}); }
+ else { const g=a.result.grade; say([{text:'半年後……'},{text:a.result.text,note:g==='close'?'商店街の ひょうばんが さがった……':null}],{after:()=>finishShop(g,id)}); }
+ persist();}
+function skipShop(){state.phase='result'; state.overlay=null; say([{text:'2人とも みおくりますか？',choices:[{label:'はい',act:'doSkip'},{label:'いいえ',act:'backMemo'}]}]);}
+function backMemo(){state.phase='memo'; render();}
+function doSkip(){const s=curShop(); say([{speaker:'かいちょう',text:DATA.skipKaicho},{text:s.name+'は 空き店舗のまま。しかし 商店街の ひょうばんは 守られた'}],{after:()=>finishShop('skip',null)});}
+function finishShop(outcome,hiredId){const s=curShop(); state.records.push({shopId:s.id,outcome:outcome,hired:hiredId,applicants:state.cur.recs}); state.justFinished=s.id; state.cur=null; state.shopIdx++; state.phase='map'; persist(); render();}
+function showEnding(partial){state.partial=!!partial; state.phase='ending'; state.overlay=null; persist(); render(); window.scrollTo(0,0);}
+function showReview(){state.phase='review'; persist(); render(); window.scrollTo(0,0);}
+function backEnding(){state.phase='ending'; render(); window.scrollTo(0,0);}
+
+/* ---- stats / reviews ---- */
+function stats(){const recs=state.records; const apps=[]; recs.forEach(r=>{const s=shopById(r.shopId); s.applicants.forEach(a=>{const x=r.applicants[a.id]; apps.push(Object.assign({},x,{id:a.id,data:a,shop:s,rec:r,hired:r.hired===a.id&&r.outcome!=='decline',grade:a.result.grade}));});});
+ const S={recs,apps,shops:recs.length,total:DATA.shops.length};
+ S.ngQ5=apps.some(a=>a.asked.includes('Q5')); S.ngQ6=apps.some(a=>a.asked.includes('Q6')); S.ngCount=apps.reduce((n,a)=>n+a.ngCount,0);
+ S.reverse=apps.some(a=>(a.hired&&a.stars.length>0&&a.grade!=='boom')||(!a.hired&&a.stars.length>0&&a.grade==='boom'));
+ S.hiredWe=apps.some(a=>a.hired&&a.data.tags.includes('we-subject')); S.hiredSolo=apps.some(a=>a.hired&&a.data.tags.includes('solo'));
+ S.early=apps.some(a=>a.endedEarly);
+ const hires=apps.filter(a=>a.hired&&a.rec.outcome!=='decline'); S.hires=hires.length; S.impHires=hires.filter(a=>a.data.good).length; S.starHires=hires.filter(a=>a.stars.length>0).length; S.noStarHires=hires.length-S.starHires;
+ S.impression4=S.impHires>=4; S.noStar3=S.noStarHires>=3;
+ S.skipGood=recs.some(r=>r.outcome==='skip'&&shopById(r.shopId).applicants.some(a=>a.result.grade==='boom'&&r.applicants[a.id].motivation>=DATA.declineBelow));
+ S.declined=recs.filter(r=>r.outcome==='decline').length; S.deepTotal=apps.reduce((n,a)=>n+a.deepOn.length,0); S.noDeep=apps.length>0&&S.deepTotal===0;
+ S.hypo3=recs.filter(r=>Object.values(r.applicants).some(x=>x.asked.includes('Q3'))).length>=3;
+ S.resumeSkipped=apps.some(a=>!a.resumeViewed);
+ S.lucky=recs.some(r=>{if(r.outcome!=='boom') return false; const s=shopById(r.shopId); const x=r.applicants[r.hired]; return x&&!['Q2','Q4',s.own.id].some(q=>x.asked.includes(q));});
+ S.allSkip=recs.length===DATA.shops.length&&recs.every(r=>r.outcome==='skip'); S.allBoom=recs.length===DATA.shops.length&&recs.every(r=>r.outcome==='boom');
+ S.boom=recs.filter(r=>r.outcome==='boom').length; S.starsFound=apps.reduce((n,a)=>n+a.stars.length,0); S.resumeViewed=apps.filter(a=>a.resumeViewed).length;
+ S.score=recs.reduce((n,r)=>n+(DATA.score[r.outcome]||0),0)+S.starsFound*DATA.score.star+S.ngCount*DATA.score.ng;
+ const max=Math.max(1,recs.length*5); S.ratio=S.score/max; S.title=(DATA.titles.find(t=>S.ratio>=t.min)||DATA.titles[DATA.titles.length-1]).name;
+ S.ending=(DATA.endings.find(e=>(S.boom/DATA.shops.length)>=e.min)||DATA.endings[DATA.endings.length-1]).text;
+ const starVia=t=>apps.reduce((n,a)=>n+a.stars.filter(q=>{const qq=Q(q,a.shop); return qq&&(t==='Q2'?q==='Q2':t==='Q4'?q==='Q4':!!qq.tellsCondition);}).length,0);
+ S.k={allResume:apps.length>0&&apps.every(a=>a.resumeViewed), starQ2x2:starVia('Q2')>=2, weNotHired:apps.some(a=>a.data.tags.includes('we-subject')&&a.deepOn.includes('Q2')&&!a.hired), starQ4:starVia('Q4')>=1, starCond:starVia('cond')>=1, noNg:S.ngCount===0, noDecline:S.declined===0};
+ S.missed=apps.filter(a=>a.stars.length===0).map(a=>{const qid=Object.keys(a.data.answers).find(k=>a.data.answers[k].deep&&a.data.answers[k].deep.star); return {a,qid,q:Q(qid,a.shop),text:a.data.answers[qid].deep.text};});
+ S.reviews=S.allBoom?[]:DATA.reviews.filter(r=>!!S[r.when]);
+ return S;}
+
+/* ---- rendering ---- */
+function spans(t){const ms=SPEED[speed()]; if(ms===0) return esc(t); let h='',i=0; for(const c of t){h+='<span class="ch" style="animation-delay:'+(i*ms)+'ms">'+esc(c)+'</span>'; i++;} return h;}
+function msgHTML(m){if(!m) return ''; const t=m.speaker?'「'+m.text+'」':m.text; const n=t.length*SPEED[speed()];
+ let h='<div class="win msg'+(state.msgDone?' done':'')+'" id="msgbox" data-act="tap">';
+ if(m.speaker) h+='<div class="speaker">'+esc(m.speaker)+'</div>';
+ if(m.banner) h+='<div class="banner'+(m.bad?' bad':'')+'">'+esc(m.banner)+'</div>';
+ if(m.head) h+='<div class="head">'+esc(m.head)+'</div>';
+ h+='<div class="text">'+spans(t)+'</div>';
+ if(m.sub) h+='<div class="sub ch" style="animation-delay:'+n+'ms">'+esc(m.sub)+'</div>';
+ if(m.note) h+='<div class="note ch" style="animation-delay:'+(n+100)+'ms">▲ '+esc(m.note)+'</div>';
+ if(state.hasMore||afterFn) h+='<button class="nextbtn" data-act="tap" aria-label="つぎへ">▼</button>';
+ h+='</div>';
+ if(m.choices) h+='<div class="row">'+m.choices.map(c=>'<button class="c" data-act="'+c.act+'">'+esc(c.label)+'</button>').join('')+'</div>';
+ return h;}
+function topbar(left){return '<div class="topbar"><span>'+left+'</span><button class="sp" data-act="speed" aria-label="もじおくり切り替え">もじおくり：'+SPEED_NAME[speed()]+'</button></div>';}
+function footer(){return '<div class="foot">'+esc(DATA.fiction)+'</div>';}
+
+function render(){let h=''; const p=state.phase;
+ if(p==='title') h=renderTitle();
+ else if(p==='map') h=renderMap();
+ else if(p==='interview'||p==='result') h=renderInterview();
+ else if(p==='memo') h=renderMemo();
+ else if(p==='ending') h=renderEnding();
+ else if(p==='review') h=renderReview();
+ else if(p==='fac') h=renderFac();
+ if(state.overlay) h+=renderOverlay();
+ $app.innerHTML=h;
+ if(p==='map'&&state.justFinished){const id=state.justFinished; const r=state.records.find(x=>x.shopId===id); state.justFinished=null; setTimeout(()=>{const el=document.getElementById('tile-'+id); if(el&&r){el.classList.add(r.outcome); const st=el.querySelector('.st'); if(st) st.textContent=DATA.gradeName[r.outcome]; if(r.outcome==='close'||r.outcome==='skip'||r.outcome==='decline'){const pp=document.createElement('span'); pp.className='paper'; pp.textContent=r.outcome==='close'?'閉店':'募集中'; el.appendChild(pp);} }},60);} }
+
+function renderTitle(){const has=!!loadSave(); const fac=new URLSearchParams(location.search).get('fac')==='1';
+ let h=topbar(''); h+='<h1>'+esc(DATA.title)+'<small>'+esc(DATA.subtitle)+'</small></h1>';
+ h+='<div class="win" style="margin-top:16px"><div>'+esc(DATA.tagline)+'</div><div class="small" style="margin-top:6px">'+esc(DATA.basis)+'</div><div class="small">'+esc(DATA.swap)+'</div></div>';
+ h+='<div class="hint">▶ 空き店舗は 5つ。1店舗につき 応募者2人を 面接し、どちらかを 採用（または みおくり）。半年後の 結果で 商店街が 変わる。所要 約10分。</div>';
+ if(has){h+='<button class="c y" data-act="continue">つづきから</button><button class="c" data-act="newConfirm">はじめから</button>';}
+ else {h+='<button class="c y" data-act="start">はじめる</button>';}
+ if(fac) h+='<button class="c sm" data-act="fac">こうし用（★と質問の一覧）</button>';
+ h+=footer(); return h;}
+
+function renderMap(){const done=state.records.length, total=DATA.shops.length; const boom=state.records.filter(r=>r.outcome==='boom').length;
+ let h=topbar(esc(DATA.town)); h+='<div class="win"><div class="nigi">'+esc(DATA.town)+'　にぎわい度 <b>'+'●'.repeat(boom)+'○'.repeat(total-boom)+'</b></div></div>';
+ h+='<div class="town">'+DATA.shops.map((s,i)=>{const r=state.records.find(x=>x.shopId===s.id); const anim=state.justFinished===s.id; const st=r&&!anim?r.outcome:'todo'; const cur=!r&&i===state.shopIdx;
+  let t='<div class="tile '+st+(cur?' cur':'')+'" id="tile-'+s.id+'"><div class="em">'+s.emoji+'</div><div>'+esc(s.short)+'</div><div class="st">'+(r&&!anim?esc(DATA.gradeName[r.outcome]):(cur?'つぎは ここ':'シャッター'))+'</div>';
+  if(r&&!anim&&(r.outcome==='close'||r.outcome==='skip'||r.outcome==='decline')) t+='<span class="paper">'+(r.outcome==='close'?'閉店':'募集中')+'</span>';
+  return t+'</div>';}).join('')+'</div>';
+ if(done>=total) h+='<button class="c y" data-act="next">けっかを見る ▶</button>';
+ else h+='<button class="c y" data-act="next">つぎの店へ ▶　'+esc(DATA.shops[state.shopIdx].name)+'</button>';
+ if(done>=1&&done<total) h+='<button class="c sm" data-act="endNow">きょうは ここまで（'+done+'店舗ぶんの けっかを見る）</button>';
+ h+='<div class="hint">はんじょうした店に あかりが ともる。へいてんは 閉店の はりがみ。</div>';
+ return h;}
+
+function renderInterview(){const s=curShop(); let h=topbar(s.emoji+' '+esc(s.name));
+ if(state.phase==='interview'&&state.cur){const a=curApp(), r=curRec();
+  if(state.cur.entered) h+='<div class="who"><span><b>'+esc(a.name)+'</b>（'+a.age+'）'+esc(a.label)+'</span><span>'+hearts(r.motivation)+' <span class="small">のこり'+r.turnsLeft+'ターン</span></span></div>';
+  h+=msgHTML(state.msg);
+  if(state.showCmds&&!r.done){h+='<div class="cmds">';
+   if(r.turnsLeft>0){h+='<div class="qlist">'+qOrder(s).filter(q=>!r.asked.includes(q)).map(q=>{const qq=Q(q,s); return '<button class="q" data-act="ask" data-arg="'+q+'">'+esc(qq.text)+'</button>';}).join('')+'</div>';
+    if(canDeep(r)) h+='<button class="y" data-act="deep">▶ ふかぼり（直前の答えを 掘り下げる）</button>';}
+   h+='<button class="c sm" data-act="endEarly">めんせつを おえる</button>';
+   h+='<div class="row"><button class="sm c" data-act="resume">りれきしょ</button><button class="sm c" data-act="memo">めんせつメモ</button></div></div>';}
+ } else { h+=msgHTML(state.msg); }
+ return h;}
+
+function clip(t){t=String(t||''); if(t.length<=22) return esc(t); return '<button type="button" class="clipbtn" data-full="'+esc(t)+'" data-short="'+esc(t.slice(0,20))+'…" aria-label="全文を見る">'+esc(t.slice(0,20))+'…</button>';}
+function memoHTML(s,recs,showTypes){const apps=s.applicants; let h='<div class="memo"><div class="memohead">'+apps.map(a=>{const r=recs[a.id]; return '<div class="mh"><b>'+esc(a.name)+'</b>（'+a.age+'）'+esc(a.label)+'<br><span class="small">'+esc(a.resume.join('／'))+'</span><br>'+hearts(r.motivation)+'</div>';}).join('')+'</div>';
+ qOrder(s).forEach(qid=>{const q=Q(qid,s); if(!apps.some(a=>recs[a.id].asked.includes(qid))) return; h+='<div class="qb"><div class="ql">'+esc(q.label)+(showTypes?'　<span class="small">['+esc({basic:'定番',fact:'行動事実',hypo:'仮定',future:'継続意思',cond:'条件',plan:'具体策',ng:'NG'}[q.type]||q.type)+']</span>':'')+'</div>';
+  apps.forEach(a=>{const r=recs[a.id]; if(!r.asked.includes(qid)){h+='<div class="ar"><span class="an">'+esc(a.name)+'</span>——</div>'; return;}
+   const ans=a.answers[qid]; const t=q.type==='ng'?(q.ngKind==='blunt'?DATA.ng.blunt.text:DATA.ng.casual.text):(ans?ans.text:'……'); h+='<div class="ar"><span class="an">'+esc(a.name)+'</span><span>'+clip(t)+'</span></div>';
+   if(r.deepOn.includes(qid)){const d=ans&&ans.deep; const dt=d?d.text:(q.shallow||'……'); const star=r.stars.includes(qid); h+='<div class="ar dr"><span class="an">'+(star?'★':'└')+'</span><span>'+clip(dt)+'</span></div>';}});
+  h+='</div>';});
+ return h+'</div>';}
+function renderMemo(){const s=curShop(); let h=topbar(s.emoji+' '+esc(s.name)); h+='<h2>めんせつメモ</h2><div class="small">2人が 実際に 言ったことを 見くらべて、決めてください（答えを タップすると 全文）</div>';
+ h+='<div class="win">'+memoHTML(s,state.cur.recs,false)+'</div>';
+ h+='<div class="hint">▼ どちらを 採用しますか？</div>';
+ s.applicants.forEach(a=>{h+='<button class="c y" data-act="hire" data-arg="'+a.id+'">さいよう：'+esc(a.name)+'</button>';});
+ h+='<button class="c" data-act="skip">みおくり（2人とも 採用しない）</button>';
+ return h;}
+
+function renderOverlay(){let h='<div class="overlay" data-act="closeOv"><div class="win" data-stop="1">';
+ if(state.overlay==='resume'){const a=curApp(); h+='<div class="ttl">りれきしょ</div><div><b>'+esc(a.name)+'</b>（'+a.age+'）'+esc(a.label)+'</div><ul>'+a.resume.map(l=>'<li>'+esc(l)+'</li>').join('')+'</ul><div class="small">※ りれきしょを 見ても ターンは へらない</div>';}
+ else if(state.overlay==='memo'){const s=curShop(); h+='<div class="ttl">めんせつメモ（ここまで）</div>'+memoHTML(s,state.cur.recs,false);}
+ else if(state.overlay==='nginfo'){h+='<div class="ttl">きいては いけないこと</div>'+DATA.ngInfo.map(l=>'<div style="margin:4px 0">'+esc(l)+'</div>').join('');}
+ else if(state.overlay==='newConfirm'){h+='<div>きろくを けして はじめから あそびますか？</div><div class="row" style="margin-top:8px"><button class="c y" data-act="start">はい</button><button class="c" data-act="closeOv">いいえ</button></div></div></div>'; return h;}
+ else if(state.overlay==='copied'){h+='<div class="ttl">コピーした！</div><div class="small">はりつけて 使えます。コピーできない 端末では 下の 文を 長おしして コピーしてください。</div><pre class="copy">'+esc(state.copyText||'')+'</pre>';}
+ h+='<button class="c sm" data-act="closeOv" style="margin-top:8px">とじる</button></div></div>'; return h;}
+
+function renderEnding(){const S=stats(); const partial=state.partial||S.shops<S.total; let h=topbar(esc(DATA.town))+'<h2>けっか</h2>';
+ if(partial) h+='<div class="win">きょうは '+S.shops+'店舗。'+esc(DATA.town)+'には まだ '+(S.total-S.shops)+'つの シャッターが のこっている</div>';
+ else h+='<div class="win"><div class="nigi">にぎわい度 <b>'+'●'.repeat(S.boom)+'○'.repeat(S.total-S.boom)+'</b></div><div style="margin-top:6px">'+esc(S.ending)+'</div></div>';
+ h+='<div class="win"><div class="ttl">めんせつかんスコア</div><div style="font-size:22px">'+S.score+' 点　<span style="color:var(--yel)">'+esc(S.title)+'</span>'+(partial?'<span class="small">（'+S.shops+'店舗まで）</span>':'')+'</div><div class="small">はんじょう '+S.boom+'店 ／ 聞き出した本音 ★'+S.starsFound+'/'+(S.shops*2)+' ／ NG質問 '+S.ngCount+'回 ／ じたい '+S.declined+'回</div></div>';
+ h+='<div class="win">あなたは 採用した '+S.hires+'人のうち '+S.impHires+'人を 第一印象の よかったほうから 選んだ。<br>★を 聞いてから 採用を 決めたのは '+S.starHires+'人だった。</div>';
+ h+='<div class="win"><div class="ttl">見逃した本音</div>'+(S.missed.length?S.missed.map(m=>'<div class="miss"><div class="mn">'+esc(m.a.data.name)+'の 本音を 見のがした……</div><div>「'+esc(m.text)+'」</div><div class="mq">→ 「'+esc(m.q.label)+'」の あとに ふかぼりすれば 聞けた。</div></div>').join(''):'<div>すべての 本音を 聞き出した！</div>')+'</div>';
+ const revs=S.allBoom?[{text:DATA.allBoomText}]:S.reviews.slice(0,3);
+ h+='<div class="win"><div class="ttl">こうひょう</div>'+(revs.length?'<ul class="rev">'+revs.map(r=>'<li>'+esc(r.text)+'</li>').join('')+'</ul>':'<div class="small">とくに なし</div>')+(S.reviews.length>3?'<div class="small">ほか '+(S.reviews.length-3)+'件は「ふりかえり」で</div>':'')+'</div>';
+ h+=kokoroeHTML(S);
+ h+='<button class="c y" data-act="review">ふりかえりを見る</button><div class="row"><button class="c sm" data-act="copyResult">けっかを コピー</button><button class="c sm" data-act="nginfo">きいては いけないこと</button></div>';
+ if(partial) h+='<div class="hint">つづきは タイトルの「つづきから」で あそべます</div><button class="c" data-act="title">タイトルへ</button>';
+ else h+='<button class="c" data-act="replay">もういちど（店①から）</button>';
+ h+=footer(); return h;}
+function kokoroeHTML(S){const got=DATA.kokoroe.filter(k=>S.k[k.when]).length; return '<div class="win"><div class="ttl">めんせつかんの こころえ　'+got+'/7</div>'+DATA.kokoroe.map((k,i)=>'<div class="kk'+(S.k[k.when]?'':' off')+'"><span class="n">'+(S.k[k.when]?'✔':'　')+(i+1)+'</span><span>'+esc(k.game)+' → '+esc(k.real)+'</span></div>').join('')+'</div>';}
+
+function renderReview(){const S=stats(); let h=topbar(esc(DATA.town))+'<h2>ふりかえり</h2>';
+ h+='<div class="win"><div class="ttl">まとめ</div><div class="small">称号：'+esc(S.title)+'／はんじょう '+S.boom+'／★ '+S.starsFound+'/'+(S.shops*2)+'／ふかぼり '+S.deepTotal+'回／NG '+S.ngCount+'回／じたい '+S.declined+'回／りれきしょ '+S.resumeViewed+'/'+(S.shops*2)+'／第一印象どおりの採用 '+S.impHires+'/'+S.hires+'</div></div>';
+ S.recs.forEach(r=>{const s=shopById(r.shopId); const hiredName=r.hired?appById(r.hired).name:'—'; h+='<div class="win"><div class="ttl">'+s.emoji+' '+esc(s.name)+'</div>'+memoHTML(s,r.applicants,true)+'<div class="small" style="margin-top:6px">判断：'+(r.outcome==='skip'?'みおくり':'さいよう '+esc(hiredName))+'　→　'+esc(DATA.gradeName[r.outcome])+'</div></div>';});
+ h+='<div class="win"><div class="ttl">こうひょう（全件）</div>'+(S.allBoom?'<div>'+esc(DATA.allBoomText)+'</div>':(S.reviews.length?'<ul class="rev">'+S.reviews.map(r=>'<li>'+esc(r.text)+'</li>').join('')+'</ul>':'<div class="small">とくに なし</div>'))+'</div>';
+ h+=kokoroeHTML(S);
+ h+='<div class="win"><div class="ttl">ふりかえりの 3つの問い</div><ol>'+DATA.reflectQ.map(q=>'<li>'+esc(q)+'</li>').join('')+'</ol></div>';
+ h+='<div class="row"><button class="c sm" data-act="copyReview">ふりかえりを コピー</button><button class="c sm" data-act="backEnding">けっかへ もどる</button></div>';
+ return h;}
+function reviewText(){const S=stats(); const L=['メンセツクエスト ふりかえり','称号｜'+S.title,'はんじょう｜'+S.boom+'｜★｜'+S.starsFound+'/'+(S.shops*2)+'｜NG｜'+S.ngCount+'｜じたい｜'+S.declined+'｜りれきしょ｜'+S.resumeViewed+'/'+(S.shops*2)+'｜印象どおり｜'+S.impHires+'/'+S.hires];
+ S.recs.forEach((r,i)=>{const s=shopById(r.shopId); s.applicants.forEach(a=>{const x=r.applicants[a.id]; const seq=[]; x.asked.forEach(q=>{seq.push(Q(q,s).label); if(x.deepOn.includes(q)) seq.push('ふかぼり');}); L.push('①②③④⑤'[i]+esc(s.short)+'｜'+a.name+'｜'+(x.resumeViewed?'りれきしょ→':'')+(seq.join('→')||'（なし）')+'｜'+(x.stars.length?'★':'★なし')+'｜'+(r.hired===a.id?'採用｜'+DATA.gradeName[r.outcome]:(r.outcome==='skip'?'みおくり':'不採用')));});});
+ const k=DATA.kokoroe.map((kk,i)=>S.k[kk.when]?null:(i+1)).filter(Boolean); L.push('こころえ｜'+(7-k.length)+'/7｜未取得：'+(k.join(',')||'なし')); return L.join('\n').replace(/&amp;|&lt;|&gt;|&quot;|&#39;/g,m=>({'&amp;':'&','&lt;':'<','&gt;':'>','&quot;':'"','&#39;':"'"}[m]));}
+function resultText(){const S=stats(); return [DATA.title+' '+DATA.subtitle,'称号：'+S.title+(S.shops<S.total?'（'+S.shops+'店舗まで）':''),'はんじょう '+S.boom+'店 ／ 見抜いた本音 '+S.starsFound+'/'+(S.shops*2),'「'+(S.shops<S.total?'まだ '+(S.total-S.shops)+'つの シャッターが のこっている':S.ending)+'」',location.href.split('?')[0]].join('\n');}
+function doCopy(t){state.copyText=t; const show=()=>{state.overlay='copied'; render();}; if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(show,show);} else show();}
+function renderFac(){let h=topbar('こうし用')+'<h2>★と質問の一覧（講師用）</h2>'; DATA.shops.forEach(s=>{h+='<div class="win"><div class="ttl">'+s.emoji+' '+esc(s.name)+'</div><div class="small">専用質問：'+esc(s.own.text)+'</div>'+s.applicants.map(a=>{const sq=Object.keys(a.answers).find(k=>a.answers[k].deep&&a.answers[k].deep.star); return '<div style="margin-top:6px"><b>'+esc(a.name)+'</b>（'+a.age+'）'+esc(a.label)+'　→ '+esc(DATA.gradeName[a.result.grade])+'<br><span class="small">★：'+esc(Q(sq,s).label)+' の ふかぼり／第一印象：'+(a.good?'良':'普通')+'／しぼうど初期値 '+a.motivation+(a.tags.length?'／タグ '+a.tags.join(','):'')+'</span><br><span class="small">「'+esc(a.answers[sq].deep.text)+'」</span></div>';}).join('')+'</div>';});
+ h+='<div class="win"><div class="ttl">質問の種類</div>'+DATA.questions.map(q=>'<div class="small">'+q.id+' ['+q.type+'] '+esc(q.text)+'</div>').join('')+'</div><button class="c" data-act="title">タイトルへ</button>'; return h;}
+
+/* ---- actions ---- */
+const ACT={
+ tap:()=>tapWindow(), speed:()=>{const o=['normal','fast','none']; LS.set('mq_speed',o[(o.indexOf(speed())+1)%3]); completeMsg(); render();},
+ start:()=>press(()=>{state.overlay=null; startGame();}), continue:()=>continueGame(), newConfirm:()=>{state.overlay='newConfirm'; render();},
+ next:()=>press(nextShop), endNow:()=>press(()=>showEnding(true)),
+ ask:(q)=>press(()=>ask(q)), deep:()=>press(deep), endEarly:()=>press(()=>endInterview(true)), resume:()=>press(openResume), memo:()=>press(openMemo), closeOv:()=>closeOverlay(),
+ hire:(id)=>press(()=>hire(id)), skip:()=>press(skipShop), doSkip:()=>press(doSkip), backMemo:()=>press(backMemo),
+ review:()=>showReview(), backEnding:()=>backEnding(), replay:()=>replay(), title:()=>toTitle(), fac:()=>{state.phase='fac'; render();},
+ copyResult:()=>doCopy(resultText()), copyReview:()=>doCopy(reviewText()), nginfo:()=>{state.overlay='nginfo'; render();}
+};
+$app.addEventListener('click',e=>{const cl=e.target.closest('.clipbtn'); if(cl){const open=cl.dataset.open==='1'; cl.textContent=open?cl.dataset.short:cl.dataset.full; cl.dataset.open=open?'0':'1'; cl.setAttribute('aria-label',open?'全文を見る':'短くする'); e.stopPropagation(); return;}
+ const stop=e.target.closest('[data-stop]'); const el=e.target.closest('[data-act]'); if(!el) return; if(stop&&el.classList.contains('overlay')) return; const act=el.dataset.act; if(ACT[act]) ACT[act](el.dataset.arg);});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){ if(state.overlay) return; if(e.target&&e.target.closest&&e.target.closest('button,a,[tabindex]')) return; const b=document.getElementById('msgbox'); if(b){e.preventDefault(); tapWindow();} }});
+state=newState(); render();
+</script>
+</body>
+</html>
